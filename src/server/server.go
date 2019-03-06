@@ -1,26 +1,20 @@
 package server
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"strings"
+	"strconv"
 )
 
-type userInfo struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
+var userMap = make(map[string]string)
 
 const EkadashiToken = "EkadashiToken"
 
 func ResponseEkadashiBot() {
-	bot, err := tgbotapi.NewBotAPI(os.Getenv(EkadashiToken))
+	bot, err := tgbotapi.NewBotAPI("705163703:AAEIbWGS_nobktv1URXi4_PXyjr7DfHvyhk")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -34,43 +28,44 @@ func ResponseEkadashiBot() {
 		}
 		switch update.Message.Command() {
 		case "register":
-			err := registrateUser(strings.Split(update.Message.CommandArguments(), " "))
-		case "login":
-
+			err := registerUser(strconv.FormatInt(int64(update.Message.Chat.ID),10), update.Message.CommandArguments())
+			if err != nil {
+				log.Println("cannot register user: ",err)
+			}
+		case "password":
+			err := loginUser(strconv.FormatInt(int64(update.Message.Chat.ID),10), update.Message.CommandArguments())
+			if err != nil {
+				log.Println("cannot login user: ",err)
+			}
+		case "showEkadashi":
+			ekadashiDate, err := showEkadashiHandler(strconv.FormatInt(int64(update.Message.Chat.ID),10))
+			if err != nil{
+				log.Println(err)
+			}
+			update.Message.Text = ekadashiDate
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID,update.Message.Text)
+			bot.Send(msg)
 		}
-
 	}
 }
 
-func createhash(str string) {
-	fmt.Println(str)
-}
 
-var userMap = make(map[string]string)
-
-func registrateUser(userInfo []string) error {
-	message := map[string]interface{}{
-		"username":"username",
-		"password":"password",
-	}
-	userMap["user"] = "smt"
-	bytesRepresentation, err := json.Marshal(message)
+func showEkadashiHandler(password string)(string, error) {
+	token := userMap[password]
+	req, err := http.NewRequest("GET","http://localhost:9000/ekadashi/next", nil)
 	if err != nil {
-		log.Fatalln(err)
+		return "", fmt.Errorf("cannot get enpdoint: %v",err)
 	}
-
-	resp, err := http.Post("http://localhost:9000/register", "application/json", bytes.NewBuffer(bytesRepresentation))
-	if err != nil {
-		log.Fatalln(err)
+	req.AddCookie(&http.Cookie{Name:"session_token",Value: token}) // temporary name
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil{
+		return "", fmt.Errorf("cannot send request: %v",err)
 	}
-	if resp.Status ==  {}
-}
-
-func sendRequest() string {
-	resp, err := http.Get("http://localhost:9000/ekadashi/next")
-	if err != nil {
-		log.Fatalln(err)
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return "", fmt.Errorf("invalid request: %v %v %v", resp.StatusCode, resp.Header, resp.Body)
 	}
-	smt,_ := ioutil.ReadAll(resp.Body)
-	return string(smt)
+	ekadashi,_ := ioutil.ReadAll(resp.Body)
+	return string(ekadashi), nil
 }
