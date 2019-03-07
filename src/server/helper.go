@@ -1,41 +1,47 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"github.com/Lighty0410/telegram-bot/src/database"
 	"net/http"
 )
 
+type message struct {
+	Username string
+	Password string
+}
 
-func marshalUsers(username, hash string)([]byte,error){
-	message := map[string]interface{}{
-		"username": username,
-		"password": hash,
-	}
-	log.Println(username)
-	userRequest, err := json.Marshal(message)
+func marshalMessage(username, hash string) (*bytes.Buffer, error) {
+	userMessage := message{Username: username, Password: hash}
+	jsonMessage, err := json.Marshal(userMessage)
 	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal user: %v", err)
+		return nil, fmt.Errorf("cannot marshal user: %v", err)
 	}
+	userRequest := bytes.NewBuffer(jsonMessage)
 	return userRequest, nil
 }
 
-func doesUserExist(userInfo string)error{
-	token := userMap[userInfo]
-	if token == ""{
-		return fmt.Errorf("user doesn't exist")
+func(s *EkadashiServer) getCookieValue(username string)(string,error){
+	cookieValue, err := s.db.GetUser(username)
+	if err != nil{
+		return "", fmt.Errorf("cannot get cookie: %v",err)
 	}
-	return nil
+	return cookieValue, nil
 }
 
-func addUsers(token *http.Response, userInfo string){
+func (s * EkadashiServer)setCookie(username string, resp *http.Response)error{
 	var cookieValue string
-	var cookieName string
-	for _, hash := range token.Cookies(){
-		cookieName = hash.Name
-		cookieValue = hash.Value
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == "" || cookie.Value == "" {
+			return fmt.Errorf("this cookie doesn't exist")
+		}
+		cookieValue = cookie.Value
 	}
-	userMap[userInfo] = cookieValue
-	userMap[cookieName] = "session_token" // temporary
+	err := s.db.SetCookie(&database.Token{Name:username, Hash:cookieValue})
+	if err !=nil{
+		return err
+	}
+	return nil
 }
