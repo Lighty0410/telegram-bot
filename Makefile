@@ -35,4 +35,4 @@ lint:
 		--enable=unused ./...
 
 mod:
-go mod tidy
+	go mod tidy

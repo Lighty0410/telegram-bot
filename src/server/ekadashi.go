@@ -11,16 +11,18 @@ type EkadashiDate struct {
 	Date string `json:"date"`
 }
 
-func (s *EkadashiServer) showEkadashiHandler(username string) (string, error) {
-	token, err := s.getCookieValue(username)
+const sessionName = "session_token"
+
+func (s *EkadashiBot) showEkadashiHandler(username string) (string, error) {
+	user, err := s.getUser(username)
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest("GET", "http://localhost:9000/ekadashi/next", nil)
+	req, err := http.NewRequest("GET", s.serverURL+s.showEkadashiURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("cannot get enpdoint: %v", err)
 	}
-	req.AddCookie(&http.Cookie{Name: "session_token", Value: token}) // temporary name
+	req.AddCookie(&http.Cookie{Name: sessionName, Value: user.Token})
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -30,8 +32,8 @@ func (s *EkadashiServer) showEkadashiHandler(username string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	ekadashiDate := EkadashiDate{}
-	err = json.Unmarshal(ekadashi, &ekadashiDate.Date)
+	var ekadashiDate EkadashiDate
+	err = json.Unmarshal(ekadashi, &ekadashiDate)
 	if err != nil {
 		return "", err
 	}

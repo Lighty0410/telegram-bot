@@ -1,11 +1,16 @@
 package main
 
 import (
-	"github.com/Lighty0410/telegram-bot/src/database"
+	"log"
+
+	"github.com/Lighty0410/telegram-bot/src/memdb"
 	"github.com/Lighty0410/telegram-bot/src/server"
 )
 
 func main() {
-	service := database.NewService()
-	server.InitTelegramBot(service)
+	service := memdb.NewService()
+	err := server.InitTelegramBot(service)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

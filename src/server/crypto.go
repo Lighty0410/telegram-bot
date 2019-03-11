@@ -3,11 +3,16 @@ package server
 import (
 	"crypto/sha1"
 	"encoding/base64"
+	"log"
 )
 
-func generateHash(password string)string {
+// GenerateHash generates hash for password.
+func GenerateHash(password string) string {
 	hasher := sha1.New()
 	hash := []byte(password)
-	hasher.Write(hash)
+	_, err := hasher.Write(hash)
+	if err != nil {
+		log.Println(err)
+	}
 	return base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 }
