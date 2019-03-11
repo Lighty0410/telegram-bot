@@ -12,6 +12,7 @@ type User struct {
 	Password string
 }
 
+// ErrNoUser is an error that indicates that there's no such user in microservice.
 var ErrNoUser = fmt.Errorf("user not found")
 
 func (s *EkadashiBot) addUser(u User) error {

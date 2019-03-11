@@ -11,6 +11,8 @@ import (
 const ekadashiURL = "EKADASHI_URL"
 const ekadashiToken = "EKADASHI_TOKEN"
 
+// EkadashiBot contains information about database and URLs.
+// It's a structure
 type EkadashiBot struct {
 	db              *memdb.Service
 	serverURL       string
@@ -19,6 +21,8 @@ type EkadashiBot struct {
 	showEkadashiURL string
 }
 
+// InitTelegramBot initialize Telegram-bot.
+// It also have a basic structures for token and URLs setup.
 func InitTelegramBot(service *memdb.Service) error {
 	ekadashiURL := os.Getenv(ekadashiURL)
 	if ekadashiURL == "" {

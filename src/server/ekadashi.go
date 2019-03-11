@@ -13,6 +13,7 @@ type EkadashiDate struct {
 
 const sessionName = "session_token"
 
+// showEkadashiHandler shows next ekadashi day based on another server.
 func (s *EkadashiBot) showEkadashiHandler(username string) (string, error) {
 	user, err := s.getUser(username)
 	if err != nil {

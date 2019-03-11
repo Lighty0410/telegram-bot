@@ -7,6 +7,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+// ResponseEkadashiBot is major method for this microservice.
+// Basically it's a go-routine that retrieves user's query and handle it.
 func (s *EkadashiBot) ResponseEkadashiBot(bot *tgbotapi.BotAPI, u tgbotapi.UpdateConfig) {
 	updates, err := bot.GetUpdatesChan(u)
 	if err != nil {
