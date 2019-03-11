@@ -6,8 +6,8 @@ import (
 	"log"
 )
 
-// GenerateHash generates hash for password.
-func GenerateHash(password string) string {
+// generateHash generates hash for password.
+func generateHash(password string) string {
 	hasher := sha1.New()
 	hash := []byte(password)
 	_, err := hasher.Write(hash)

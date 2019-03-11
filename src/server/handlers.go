@@ -10,9 +10,10 @@ import (
 type errorMessage struct {
 	Reason string `json:"reason"`
 }
+
 // handleRegistration register user in the microservice.
 func (s *EkadashiBot) handleRegistration(username string) error {
-	password := GenerateHash(username)
+	password := generateHash(username)
 	userRequest, err := marshalMessage(username, password)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal user: %v", err)
