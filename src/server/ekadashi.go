@@ -13,7 +13,7 @@ type EkadashiDate struct {
 
 func (s *EkadashiServer) showEkadashiHandler(username string) (string, error) {
 	token, err := s.getCookieValue(username)
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 	req, err := http.NewRequest("GET", "http://localhost:9000/ekadashi/next", nil)
@@ -26,8 +26,14 @@ func (s *EkadashiServer) showEkadashiHandler(username string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot send request: %v", err)
 	}
-	ekadashi, _ := ioutil.ReadAll(resp.Body)
+	ekadashi, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
 	ekadashiDate := EkadashiDate{}
-	json.Unmarshal(ekadashi,&ekadashiDate.Date)
+	err = json.Unmarshal(ekadashi, &ekadashiDate.Date)
+	if err != nil {
+		return "", err
+	}
 	return ekadashiDate.Date, nil
 }

@@ -2,23 +2,17 @@ package database
 
 import "fmt"
 
-type User struct {
-	Username string
-	Token string
-	Password string
-}
-
-func (s *Service)AddUser(u *User)error{
-	s.users[u.Username] = u.Hash
-	if len(s.users[u.Username]) == 0 {
+func (s *Service) AddUser(userID string, u *User) error {
+	s.users[userID] = User{Password: u.Password}
+	if len(s.users[userID].Password) == 0 {
 		return fmt.Errorf("database cannot contain empty username or password")
 	}
 	return nil
 }
 
-func (s *Service)GetUser(username string)(string, error){
-	if len(s.users[username]) == 0{
+func (s *Service) GetUser(userID string) (string, error) {
+	if len(s.users[userID].Password) == 0 {
 		return "", fmt.Errorf("this user doesn't exist in the database")
 	}
-	return s.users[username], nil
+	return s.users[userID].Password, nil
 }

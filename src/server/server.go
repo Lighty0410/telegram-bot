@@ -6,12 +6,10 @@ import (
 	"strconv"
 )
 
-const ekadashiToken = "EKADASHI_TOKEN" // TODO THIS PROPERLY PLEASE
-
-func (s *EkadashiServer) ResponseEkadashiBot(bot *tgbotapi.BotAPI, u *tgbotapi.UpdateConfig ) {
+func (s *EkadashiServer) ResponseEkadashiBot(bot *tgbotapi.BotAPI, u *tgbotapi.UpdateConfig) {
 	updates, err := bot.GetUpdatesChan(*u)
-	if err != nil{
-		log.Println("cannot get updates from channel: ",err)
+	if err != nil {
+		log.Println("cannot get updates from channel: ", err)
 	}
 	for update := range updates {
 		if update.Message == nil {

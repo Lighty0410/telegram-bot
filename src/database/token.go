@@ -2,21 +2,19 @@ package database
 
 import "fmt"
 
-type Token struct {
-	Name string
-	Hash string
-}
-func (s *Service)SetCookie(t *Token)error{
-	if len(s.users[t.Name]) == 0{
+func (s *Service) SetCookie(userID string, u *User) error {
+	if len(s.users[userID].Password) == 0 {
 		return fmt.Errorf("field users cannot be empty")
 	}
-	s.users[t.Name] = t.Hash
+	token := s.users[userID]
+	token.Token = u.Token
+	s.users[userID] = token
 	return nil
 }
 
-func (s *Service) GetCookie(t *Token)(string,error){
-	if len(s.users[t.Name]) == 0{
+func (s *Service) GetCookie(userID string) (string, error) {
+	if len(s.users[userID].Password) == 0 {
 		return "", fmt.Errorf("field users cannot be empty")
 	}
-	return s.users[t.Name], nil
+	return s.users[userID].Token, nil
 }
