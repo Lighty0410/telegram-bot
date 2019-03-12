@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	service := memdb.NewService()
-	err := server.InitTelegramBot(service)
+	memdb := memdb.NewService()
+	err := server.InitTelegramBot(memdb)
 	if err != nil {
 		log.Fatal(err)
 	}

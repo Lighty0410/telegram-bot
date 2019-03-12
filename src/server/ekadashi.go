@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// EkadashiDate contains information about ekadashi date.
 type EkadashiDate struct {
 	Date string `json:"date"`
 }
@@ -23,6 +24,7 @@ func (s *EkadashiBot) showEkadashiHandler(username string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot get enpdoint: %v", err)
 	}
+	defer req.Body.Close()
 	req.AddCookie(&http.Cookie{Name: sessionName, Value: user.Token})
 	client := &http.Client{}
 	resp, err := client.Do(req)

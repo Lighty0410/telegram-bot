@@ -12,7 +12,7 @@ type User struct {
 	Password string
 }
 
-// NewService creates database for a new memory-based database.
+// NewService creates database in memory database.
 func NewService() *Service {
 	return &Service{
 		users: make(map[string]User),

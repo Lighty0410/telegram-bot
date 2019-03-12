@@ -22,6 +22,7 @@ func (s *EkadashiBot) handleRegistration(username string) error {
 	if err != nil {
 		return fmt.Errorf("cannot send request: %v", err)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		errorMessage := new(errorMessage)
 		err := json.NewDecoder(resp.Body).Decode(&errorMessage)
@@ -67,11 +68,9 @@ func (s *EkadashiBot) handleLogin(username string) error {
 	}
 	var cookieValue string
 	for _, cookie := range resp.Cookies() {
-		if cookie.Name == "" || cookie.Value == "" {
-			return fmt.Errorf("this cookie doesn't exist")
-		}
 		if cookie.Name == sessionName {
 			cookieValue = cookie.Value
+			break
 		}
 	}
 	err = s.addUser(User{ID: user.ID, Password: user.Password, Token: cookieValue})
