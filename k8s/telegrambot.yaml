@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegram-deployment
+  labels:
+    app: telegram
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegram
+  template:
+    metadata:
+      labels:
+        app: telegram
+    spec:
+      containers:
+        - name: telegram-bot
+          image: lighty0410/telegrambot:latest
+          env:
+            - name: EKADASHI_URL
+              value: "ekadashiservice:9000"
+            - name: EKADASHI_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: token-secret
+                  key:  telegram_token
