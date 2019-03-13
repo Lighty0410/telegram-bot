@@ -14,8 +14,12 @@ COPY ./ ./
 
 RUN CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o /app ./cmd/app/
 
-FROM scratch AS final
+FROM alpine AS final
+
+RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /app /app
+
+EXPOSE 9000
 
 ENTRYPOINT ["/app"]
