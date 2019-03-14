@@ -24,10 +24,10 @@ func (s *EkadashiBot) showEkadashiHandler(username string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot get enpdoint: %v", err)
 	}
-	defer req.Body.Close()
 	req.AddCookie(&http.Cookie{Name: sessionName, Value: user.Token})
 	client := &http.Client{}
 	resp, err := client.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		return "", fmt.Errorf("cannot send request: %v", err)
 	}
