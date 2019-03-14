@@ -7,8 +7,8 @@ import (
 )
 
 type message struct {
-	Username string
-	Password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 // marshalMessage is a helper to marshal message from string to *bytes.Buffer.
