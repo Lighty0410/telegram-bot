@@ -27,10 +27,10 @@ func (s *EkadashiBot) showEkadashiHandler(username string) (string, error) {
 	req.AddCookie(&http.Cookie{Name: sessionName, Value: user.Token})
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return "", fmt.Errorf("cannot send request: %v", err)
 	}
+	defer resp.Body.Close()
 	ekadashi, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
