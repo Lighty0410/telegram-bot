@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Lighty0410/telegram-bot/src/server/grpc"
+
 	"github.com/Lighty0410/telegram-bot/src/server/controller"
-	api "github.com/Lighty0410/telegram-bot/src/server/grpc/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
@@ -14,7 +15,7 @@ const ekadashiToken = "EKADASHI_TOKEN"
 
 // EkadashiBot contains information about database and URLs.
 type EkadashiBot struct {
-	client          api.EkadashiClient
+	grpc            *grpc.GrpcService
 	controller      controller.Controller
 	serverURL       string
 	registerURL     string
@@ -24,14 +25,13 @@ type EkadashiBot struct {
 
 // InitTelegramBot initialize Telegram-bot.
 // It also have a basic structures for token and URLs setup.
-func InitTelegramBot(controller *controller.Controller, client api.EkadashiClient) error {
+func InitTelegramBot(gRPC *grpc.GrpcService) error {
 	ekadashiURL := os.Getenv(ekadashiURL)
 	if ekadashiURL == "" {
 		return fmt.Errorf("server URL cannot be empty")
 	}
 	s := &EkadashiBot{
-		client:          client,
-		controller:      *controller,
+		grpc:            gRPC,
 		serverURL:       ekadashiURL,
 		registerURL:     "/register",
 		loginURL:        "/login",

@@ -1,16 +1,18 @@
-package server
+package grpc
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/Lighty0410/telegram-bot/src/crypto"
+
 	"github.com/Lighty0410/telegram-bot/src/server/controller"
 	api "github.com/Lighty0410/telegram-bot/src/server/grpc/api"
 )
 
-// handleRegistration register user in the microservice.
-func (s *EkadashiBot) handleRegistration(username string) error {
-	password := generateHash(username)
+// HandleRegistration register user in the microservice.
+func (s *GrpcService) HandleRegistration(username string) error {
+	password := crypto.GenerateHash(username)
 	_, err := s.client.Register(context.Background(), &api.RegisterRequest{
 		User: &api.User{
 			Name:     username,
@@ -21,15 +23,15 @@ func (s *EkadashiBot) handleRegistration(username string) error {
 		return fmt.Errorf("cannot register user: %v", err)
 	}
 	err = s.controller.AddUser(controller.User{ID: username, Password: password})
-	err = s.handleLogin(username)
+	err = s.HandleLogin(username)
 	if err != nil {
 		return fmt.Errorf("cannot login user: %v", err)
 	}
 	return nil
 }
 
-// handleLogin login user in the microservice.
-func (s *EkadashiBot) handleLogin(username string) error {
+// HandleLogin login user in the microservice.
+func (s *GrpcService) HandleLogin(username string) error {
 	user, err := s.controller.GetUser(username)
 	if err != nil {
 		return err

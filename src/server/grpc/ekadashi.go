@@ -1,4 +1,4 @@
-package server
+package grpc
 
 import (
 	"context"
@@ -14,7 +14,7 @@ type EkadashiDate struct {
 }
 
 // showEkadashiHandler shows next ekadashi day based on another server.
-func (s *EkadashiBot) showEkadashiHandler(username string) (string, error) {
+func (s *GrpcService) ShowEkadashiHandler(username string) (string, error) {
 	user, err := s.controller.GetUser(username)
 	if err != nil {
 		return "", fmt.Errorf("cannot get user :%v", err)

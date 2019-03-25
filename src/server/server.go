@@ -21,17 +21,17 @@ func (s *EkadashiBot) ResponseEkadashiBot(bot *tgbotapi.BotAPI, u tgbotapi.Updat
 		}
 		switch update.Message.Command() {
 		case "start":
-			err := s.handleRegistration(strconv.FormatInt(update.Message.Chat.ID, 10))
+			err := s.grpc.HandleRegistration(strconv.FormatInt(update.Message.Chat.ID, 10))
 			if err != nil {
 				log.Println("cannot register user: ", err)
 			}
 		case "login":
-			err := s.handleLogin(strconv.FormatInt(update.Message.Chat.ID, 10))
+			err := s.grpc.HandleLogin(strconv.FormatInt(update.Message.Chat.ID, 10))
 			if err != nil {
 				log.Println("cannot login user: ", err)
 			}
 		case "ekadashi":
-			ekadashiDate, err := s.showEkadashiHandler(strconv.FormatInt(update.Message.Chat.ID, 10))
+			ekadashiDate, err := s.grpc.ShowEkadashiHandler(strconv.FormatInt(update.Message.Chat.ID, 10))
 			if err != nil {
 				log.Println(err)
 			}

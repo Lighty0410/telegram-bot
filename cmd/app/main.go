@@ -12,11 +12,11 @@ import (
 func main() {
 	memdb := memdb.NewService()
 	controller := controller.NewController(memdb)
-	client, err := grpc.NewGrpcClient("50051")
+	gRPC, err := grpc.NewGrpcClient("50051", controller)
 	if err != nil {
 		log.Fatalf("cannot get gRPC client: %v", err)
 	}
-	err = server.InitTelegramBot(controller, client)
+	err = server.InitTelegramBot(gRPC)
 	if err != nil {
 		log.Fatal(err)
 	}
