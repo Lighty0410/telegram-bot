@@ -15,13 +15,13 @@ const ekadashiToken = "EKADASHI_TOKEN"
 
 // EkadashiBot contains information about database and URLs.
 type EkadashiBot struct {
-	grpc *grpc.GrpcService
-	http *http.HttpService
+	grpc *grpc.Service
+	http *http.Service
 }
 
 // InitTelegramBot initialize Telegram-bot.
 // It also have a basic structures for token and URLs setup.
-func InitTelegramBot(gRPC *grpc.GrpcService, http *http.HttpService) error {
+func InitTelegramBot(gRPC *grpc.Service, http *http.Service) error {
 	s := &EkadashiBot{
 		grpc: gRPC,
 		http: http,

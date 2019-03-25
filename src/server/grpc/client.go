@@ -9,20 +9,22 @@ import (
 	"google.golang.org/grpc"
 )
 
-type GrpcService struct {
+// GrpcService is a struct that contains controller field.
+// Every gRPC method is defined by this structure.
+type Service struct {
 	client     api.EkadashiClient
 	controller *controller.Controller
 }
 
 // NewGrpcClient creates a connection to the gRPC server.
 // If connection succeed returns EkadashiCient interface and nil.
-func NewGrpcClient(address string, controller *controller.Controller) (*GrpcService, error) {
+func NewGrpcClient(address string, controller *controller.Controller) (*Service, error) {
 	conn, err := grpc.Dial("localhost:"+address, grpc.WithInsecure())
 	if err != nil {
 		return nil, fmt.Errorf("cannot connect to gRPC server: %v", err)
 	}
 	client := api.NewEkadashiClient(conn)
-	s := &GrpcService{
+	s := &Service{
 		client:     client,
 		controller: controller,
 	}

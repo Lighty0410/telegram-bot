@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Lighty0410/telegram-bot/src/crypto"
 
@@ -11,7 +12,7 @@ import (
 )
 
 // HandleRegistration register user in the microservice.
-func (s *GrpcService) HandleRegistration(username string) error {
+func (s *Service) Register(username string) error {
 	password := crypto.GenerateHash(username)
 	_, err := s.client.Register(context.Background(), &api.RegisterRequest{
 		User: &api.User{
@@ -20,9 +21,23 @@ func (s *GrpcService) HandleRegistration(username string) error {
 		},
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "exists") {
+			err = s.controller.AddUser(controller.User{ID: username, Password: password})
+			if err != nil {
+				return fmt.Errorf("cannot add user to the database: %v", err)
+			}
+			err := s.HandleLogin(username)
+			if err != nil {
+				return fmt.Errorf("cannot login user: %v", err)
+			}
+			return nil
+		}
 		return fmt.Errorf("cannot register user: %v", err)
 	}
 	err = s.controller.AddUser(controller.User{ID: username, Password: password})
+	if err != nil {
+		return fmt.Errorf("cannot get add user to the database: %v", err)
+	}
 	err = s.HandleLogin(username)
 	if err != nil {
 		return fmt.Errorf("cannot login user: %v", err)
@@ -31,10 +46,10 @@ func (s *GrpcService) HandleRegistration(username string) error {
 }
 
 // HandleLogin login user in the microservice.
-func (s *GrpcService) HandleLogin(username string) error {
+func (s *Service) HandleLogin(username string) error {
 	user, err := s.controller.GetUser(username)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get user from the database: %v", err)
 	}
 	response, err := s.client.Login(context.Background(), &api.LoginRequest{
 		User: &api.User{
@@ -42,6 +57,9 @@ func (s *GrpcService) HandleLogin(username string) error {
 			Password: user.Password,
 		},
 	})
+	if err != nil {
+		return fmt.Errorf("cannot get response from gRPC server: %v", err)
+	}
 	err = s.controller.AddUser(controller.User{ID: user.ID, Password: user.Password, Token: response.Auth.Token})
 	if err != nil {
 		return err

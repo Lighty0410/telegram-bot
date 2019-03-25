@@ -13,8 +13,8 @@ type EkadashiDate struct {
 	Date string `json:"date"`
 }
 
-// showEkadashiHandler shows next ekadashi day based on another server.
-func (s *GrpcService) ShowEkadashiHandler(username string) (string, error) {
+// ShowEkadashi shows next ekadashi day based on another server.
+func (s *Service) ShowEkadashi(username string) (string, error) {
 	user, err := s.controller.GetUser(username)
 	if err != nil {
 		return "", fmt.Errorf("cannot get user :%v", err)

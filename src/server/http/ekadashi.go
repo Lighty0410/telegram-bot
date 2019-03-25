@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -15,7 +14,7 @@ type EkadashiDate struct {
 const sessionName = "session_token"
 
 // showEkadashiHandler shows next ekadashi day based on another server.
-func (s *HttpService) ShowEkadashi(username string) (string, error) {
+func (s *Service) ShowEkadashi(username string) (string, error) {
 	user, err := s.controller.GetUser(username)
 	if err != nil {
 		return "", err
@@ -24,21 +23,16 @@ func (s *HttpService) ShowEkadashi(username string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot get enpdoint: %v", err)
 	}
-	defer req.Body.Close()
 	req.AddCookie(&http.Cookie{Name: sessionName, Value: user.Token})
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("cannot send request: %v", err)
 	}
+	defer resp.Body.Close()
 	ekadashi, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
-	var ekadashiDate EkadashiDate
-	err = json.Unmarshal(ekadashi, &ekadashiDate)
-	if err != nil {
-		return "", err
-	}
-	return ekadashiDate.Date, nil
+	return string(ekadashi), nil
 }

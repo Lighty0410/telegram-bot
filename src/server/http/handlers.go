@@ -15,8 +15,8 @@ type errorMessage struct {
 	Reason string `json:"reason"`
 }
 
-// Register registers user in the microservice.
-func (s *HttpService) Register(username string) error {
+// handleRegistration register user in the microservice.
+func (s *Service) Register(username string) error {
 	password := crypto.GenerateHash(username)
 	userRequest, err := helper.MarshalMessage(username, password)
 	if err != nil {
@@ -48,8 +48,8 @@ func (s *HttpService) Register(username string) error {
 	return nil
 }
 
-// Login logins user in the microservice.
-func (s *HttpService) Login(username string) error {
+// handleLogin login user in the microservice.
+func (s *Service) Login(username string) error {
 	user, err := s.controller.GetUser(username)
 	if err != nil {
 		return err

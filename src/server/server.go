@@ -21,7 +21,7 @@ func (s *EkadashiBot) ResponseEkadashiBot(bot *tgbotapi.BotAPI, u tgbotapi.Updat
 		}
 		switch update.Message.Command() {
 		case "start":
-			err := s.grpc.HandleRegistration(strconv.FormatInt(update.Message.Chat.ID, 10))
+			err := s.grpc.Register(strconv.FormatInt(update.Message.Chat.ID, 10))
 			if err != nil {
 				log.Println("cannot register user by gRPC method: ", err)
 				err := s.http.Register(strconv.FormatInt(update.Message.Chat.ID, 10))
@@ -39,16 +39,22 @@ func (s *EkadashiBot) ResponseEkadashiBot(bot *tgbotapi.BotAPI, u tgbotapi.Updat
 				}
 			}
 		case "ekadashi":
-			ekadashiDate, err := s.grpc.ShowEkadashiHandler(strconv.FormatInt(update.Message.Chat.ID, 10))
+			ekadashiDate, err := s.grpc.ShowEkadashi(strconv.FormatInt(update.Message.Chat.ID, 10))
 			if err != nil {
 				log.Println("cannot get ekadahi date by gRPC method: ", err)
 				ekadashiDate, err := s.http.ShowEkadashi(strconv.FormatInt(update.Message.Chat.ID, 10))
+				if err != nil {
+					log.Println("cannot get ekadashi date by HTTP method: ", err)
+					continue
+				}
 				update.Message.Text = ekadashiDate
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 				_, err = bot.Send(msg)
 				if err != nil {
-					log.Println(err)
+					log.Println("cannot send message to the telegram: ", err)
+					continue
 				}
+				continue
 			}
 			update.Message.Text = ekadashiDate
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)

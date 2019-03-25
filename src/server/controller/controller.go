@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 
-	"github.com/Lighty0410/telegram-bot/src/memdb"
+	"github.com/Lighty0410/telegram-bot/src/storage"
 )
 
 // User is a struct that contains user's info.
@@ -15,13 +15,13 @@ type User struct {
 
 // Controller is an object that provides an access for the controller's functionality.
 type Controller struct {
-	db memdb.Service
+	service storage.Service
 }
 
 // CreateController creates a new instance for the controller.
-func NewController(db *memdb.Service) *Controller {
+func NewController(service storage.Service) *Controller {
 	return &Controller{
-		db: *db,
+		service: service,
 	}
 }
 
@@ -31,7 +31,7 @@ var ErrNoUser = fmt.Errorf("user not found")
 // AddUser adds user to the database.
 // If succeed returns nil.
 func (s *Controller) AddUser(u User) error {
-	err := s.db.UpsertUser(memdb.User{ID: u.ID, Password: u.Password, Token: u.Token})
+	err := s.service.UpsertUser(storage.User{ID: u.ID, Password: u.Password, Token: u.Token})
 	if err != nil {
 		return fmt.Errorf("cannot add user to memdb: %v", err)
 	}
@@ -41,8 +41,8 @@ func (s *Controller) AddUser(u User) error {
 // GetUser gets user from the database.
 // If succeed returns User structure and nil.
 func (s *Controller) GetUser(username string) (User, error) {
-	user, err := s.db.GetUser(username)
-	if err == memdb.ErrUserNotFound {
+	user, err := s.service.GetUser(username)
+	if err == storage.ErrUserNotFound {
 		return User{}, ErrNoUser
 	}
 	if err != nil {
