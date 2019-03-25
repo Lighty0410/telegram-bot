@@ -1,24 +1,24 @@
 package http
 
-import "fmt"
-
-package server
-
 import (
-"encoding/json"
-"fmt"
-"io/ioutil"
-"net/http"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
+	"github.com/Lighty0410/telegram-bot/src/crypto"
+	"github.com/Lighty0410/telegram-bot/src/helper"
+	"github.com/Lighty0410/telegram-bot/src/server/controller"
 )
 
 type errorMessage struct {
 	Reason string `json:"reason"`
 }
 
-// handleRegistration register user in the microservice.
-func (s *EkadashiBot) handleRegistration(username string) error {
-	password := generateHash(username)
-	userRequest, err := marshalMessage(username, password)
+// Register registers user in the microservice.
+func (s *HttpService) Register(username string) error {
+	password := crypto.GenerateHash(username)
+	userRequest, err := helper.MarshalMessage(username, password)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal user: %v", err)
 	}
@@ -37,24 +37,24 @@ func (s *EkadashiBot) handleRegistration(username string) error {
 			return fmt.Errorf("cannot register user: %v %v %v", resp.Status, resp.Header, errorMessage.Reason)
 		}
 	}
-	err = s.addUser(User{ID: username, Password: password})
+	err = s.controller.AddUser(controller.User{ID: username, Password: password})
 	if err != nil {
 		return err
 	}
-	err = s.handleLogin(username)
+	err = s.Login(username)
 	if err != nil {
 		return fmt.Errorf("cannot login user: %v", err)
 	}
 	return nil
 }
 
-// handleLogin login user in the microservice.
-func (s *EkadashiBot) handleLogin(username string) error {
-	user, err := s.getUser(username)
+// Login logins user in the microservice.
+func (s *HttpService) Login(username string) error {
+	user, err := s.controller.GetUser(username)
 	if err != nil {
 		return err
 	}
-	userRequest, err := marshalMessage(username, user.Password)
+	userRequest, err := helper.MarshalMessage(username, user.Password)
 	if err != nil {
 		return fmt.Errorf("cannot marshal user: %v", err)
 	}
@@ -77,10 +77,9 @@ func (s *EkadashiBot) handleLogin(username string) error {
 			break
 		}
 	}
-	err = s.addUser(User{ID: user.ID, Password: user.Password, Token: cookieValue})
+	err = s.controller.AddUser(controller.User{ID: user.ID, Password: user.Password, Token: cookieValue})
 	if err != nil {
 		return err
 	}
 	return nil
 }
-

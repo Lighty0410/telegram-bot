@@ -1,4 +1,4 @@
-package server
+package helper
 
 import (
 	"bytes"
@@ -11,9 +11,9 @@ type message struct {
 	Password string
 }
 
-// marshalMessage is a helper to marshal message from string to *bytes.Buffer.
+// MarshalMessage is a helper to marshal message from string to *bytes.Buffer.
 // It's necessary because we can use message in requests properly.
-func marshalMessage(username, password string) (*bytes.Buffer, error) {
+func MarshalMessage(username, password string) (*bytes.Buffer, error) {
 	userMessage := message{Username: username, Password: password}
 	jsonMessage, err := json.Marshal(userMessage)
 	if err != nil {
