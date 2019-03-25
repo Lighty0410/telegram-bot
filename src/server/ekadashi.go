@@ -1,10 +1,11 @@
 package server
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"time"
+
+	api "github.com/Lighty0410/telegram-bot/src/server/grpc/api"
 )
 
 // EkadashiDate contains information about ekadashi date.
@@ -12,33 +13,18 @@ type EkadashiDate struct {
 	Date string `json:"date"`
 }
 
-const sessionName = "session_token"
-
 // showEkadashiHandler shows next ekadashi day based on another server.
 func (s *EkadashiBot) showEkadashiHandler(username string) (string, error) {
-	user, err := s.getUser(username)
+	user, err := s.controller.GetUser(username)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("cannot get user :%v", err)
 	}
-	req, err := http.NewRequest("GET", s.serverURL+s.showEkadashiURL, nil)
+	date, err := s.client.ShowEkadashi(context.Background(), &api.ShowEkadashiRequest{
+		Session: &api.Session{Token: user.Token},
+	})
 	if err != nil {
-		return "", fmt.Errorf("cannot get enpdoint: %v", err)
+		return "", fmt.Errorf("cannot get ekadashi date: %v", err)
 	}
-	defer req.Body.Close()
-	req.AddCookie(&http.Cookie{Name: sessionName, Value: user.Token})
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("cannot send request: %v", err)
-	}
-	ekadashi, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	var ekadashiDate EkadashiDate
-	err = json.Unmarshal(ekadashi, &ekadashiDate)
-	if err != nil {
-		return "", err
-	}
-	return ekadashiDate.Date, nil
+	ekadashi := time.Unix(date.Ekadashi, 0)
+	return ekadashi.Format("January 2 2006"), nil
 }
